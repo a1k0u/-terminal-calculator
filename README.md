@@ -1,1 +1,1 @@
-# -terminal-calculator
+# terminal-calculator
