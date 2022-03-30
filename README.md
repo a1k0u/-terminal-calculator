@@ -1,7 +1,7 @@
 # Terminal calculator
 
----
-> ### About project
+### About project
+
 > Here's a terminal calculator with some "*<u>human 
 > use experience</u>*". There is already realise few features of functionality.   
 > - *operations*: +, -, ^, /
@@ -38,6 +38,8 @@ result = ...
 - [ ] Struct of Nodes
 - [ ] Parsing expression
 - [ ] Tokenization objects
+- [ ] Stack of functions
+- [ ] Hash table for variables
 - [ ] Polish notations
 - [ ] Processing tokens
 - [ ] Raising of warnings
