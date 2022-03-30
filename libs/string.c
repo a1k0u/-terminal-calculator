@@ -2,15 +2,16 @@
 #include <stdio.h>
 #include "string.h"
 
-STR* init_str()
+Str* init_str()
 {
-	STR* str = NULL;
-	str->len = 0;
-	str->word = (char*)malloc(sizeof(char) * str->len);
-	return str;
+    Str* str;
+    str = (Str*)malloc(sizeof(Str));
+	str->word = (char*)malloc(sizeof(char));
+    str->len = 0;
+    return str;
 }
 
-STR* del_str(STR* str)
+Str* del_str(Str* str)
 {
     free(str->word);
     str->len = 0;
@@ -18,33 +19,40 @@ STR* del_str(STR* str)
     return str;
 }
 
-void push_str(STR* str, char letter)
+void push_str(Str* str, char letter)
 {
 	str->len += 1;
 	str->word = (char*)realloc(str->word, sizeof(char) * str->len);
 	str->word[str->len-1] = letter;
 }
 
-STR* strip_str(STR* str)
+Str* strip_str(Str* str)
 {
-    STR* new_str = init_str();
+    Str* new_str = init_str();
+
     for (int i = 0; i < str->len; ++i)
-        if (str->word != ' ')
+        if (str->word[i] != ' ')
             push_str(new_str, str->word[i]);
     str = del_str(str);
     return new_str;
 }
 
-STR* input_str()
+Str* input_str()
 {
-    STR* new_str = init_str();
-    char chr = getchar();
+    char chr;
+    Str* new_str = init_str();
+
+    chr = getchar();
     while (chr != '\n')
     {
         push_str(new_str, chr);
         chr = getchar();
     }
 
-    new_str = strip_str(new_str);
     return new_str;
+}
+
+void print_str(Str* string)
+{
+    printf("%s\n", string->word);
 }
