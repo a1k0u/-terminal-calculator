@@ -2,13 +2,13 @@
 
 ### About project
 
-> Here's a terminal calculator with some "*<u>human 
-> use experience</u>*". There is already realise few features of functionality.   
+> Here's a terminal calculator with some "__human 
+> use experience__". There is already realise few features of functionality.   
 > - *operations*: +, -, ^, /
 > - *constants*: PI, e, j
 > - *functions*: cos, sin, ln, exp, sqrt, real, imag, mag and phase
 >
-> > *Guaranteed that argument of cos, sin, ln and exp will be a <u>real number</u>.*
+> > *Guaranteed that argument of cos, sin, ln and exp will be a **real number**.*
 >
 > Your expression able to use **variables**.
 
