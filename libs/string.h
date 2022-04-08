@@ -1,14 +1,15 @@
 #pragma once
 
-typedef struct string
+typedef struct Str
 {
     char* word;
     int len;
-} Str;
+} STR;
 
-Str* init_str();
-Str* del_str(Str* str);
-void print_str(Str* string);
-void push_str(Str* str, char letter);
-Str* strip_str(Str* str);
-Str* input_str();
+STR* init_str();
+STR* del_str(STR* str);
+STR* push_char(STR* str, char symb);
+STR* split_str(STR* str, char symb);
+STR* strip_str(STR* str, char symb);
+void print_str(STR* string);
+STR* input_str();

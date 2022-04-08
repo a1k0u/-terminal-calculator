@@ -2,57 +2,57 @@
 #include <stdio.h>
 #include "string.h"
 
-Str* init_str()
-{
-    Str* str;
-    str = (Str*)malloc(sizeof(Str));
-	str->word = (char*)malloc(sizeof(char));
+STR* init_str() {
+    STR* str = (STR*)malloc(sizeof(STR));
+    str->word = (char*)malloc(sizeof(char));
     str->len = 0;
+
     return str;
 }
 
-Str* del_str(Str* str)
-{
+STR* del_str(STR* str) {
     free(str->word);
     str->len = 0;
     str = NULL;
+
     return str;
 }
 
-void push_str(Str* str, char letter)
-{
+STR* push_char(STR* str, char letter) {
 	str->len += 1;
-	str->word = (char*)realloc(str->word, sizeof(char) * str->len);
+	str->word = (char*)realloc(
+            str->word,
+            sizeof(char) * str->len);
 	str->word[str->len-1] = letter;
+
+    return str;
 }
 
-Str* strip_str(Str* str)
-{
-    Str* new_str = init_str();
+STR* strip_str(STR* str, char symb) {
+    STR* new_str = init_str();
 
     for (int i = 0; i < str->len; ++i)
-        if (str->word[i] != ' ')
-            push_str(new_str, str->word[i]);
+        if (str->word[i] != symb)
+            push_char(new_str, str->word[i]);
+
     str = del_str(str);
     return new_str;
 }
 
-Str* input_str()
-{
+STR* input_str() {
     char chr;
-    Str* new_str = init_str();
+    STR* new_str = init_str();
 
     chr = getchar();
     while (chr != '\n')
     {
-        push_str(new_str, chr);
+        new_str = push_char(new_str, chr);
         chr = getchar();
     }
 
     return new_str;
 }
 
-void print_str(Str* string)
-{
+void print_str(STR* string) {
     printf("%s\n", string->word);
 }
