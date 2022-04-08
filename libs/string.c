@@ -53,6 +53,17 @@ STR* input_str() {
     return new_str;
 }
 
+int compare_str(STR* str1, STR* str2) {
+    if (str1->len != str2->len)
+        return 0;
+
+    for (int i = 0; i < str1->len; ++i)
+        if (str1->word[i] != str2->word[i])
+            return 0;
+
+    return 1;
+}
+
 void print_str(STR* string) {
     printf("%s\n", string->word);
 }
