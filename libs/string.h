@@ -1,7 +1,6 @@
 #pragma once
 
-typedef struct Str
-{
+typedef struct Str {
     char* word;
     int len;
 } STR;

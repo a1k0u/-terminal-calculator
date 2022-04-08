@@ -1,7 +1,6 @@
 #pragma once
 
-typedef struct node
-{
+typedef struct node {
     long double real;
     long double image;
     // ...

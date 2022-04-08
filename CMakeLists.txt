@@ -9,4 +9,4 @@ add_executable(terminal_calculator
         main.c
         libs/node.h
         libs/string.c
-        libs/string.h)
+        libs/string.h libs/stack.c libs/stack.h)
