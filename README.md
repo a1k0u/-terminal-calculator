@@ -35,7 +35,7 @@ result = ...
 ### Progress
 
 - [x] Write C library to work with dynamic string
-- [ ] Struct of Nodes
+- [x] Struct of Nodes
 - [ ] Parsing expression
 - [ ] Tokenization objects
 - [ ] Stack of functions
