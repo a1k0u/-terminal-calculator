@@ -11,8 +11,8 @@ STACK* init_stack() {
 
 STACK* add_to_stack(STACK* stack, STR* elem) {
     if (stack->capacity == stack->pointer) {
+        stack->array = (STR**)realloc(stack->array,sizeof(STR*) * (stack->capacity * 2 + 1));
         stack->capacity = stack->capacity * 2 + 1;
-        stack->array = (STR**)realloc(stack->array,sizeof(STR*) * stack->capacity);
     }
 
     stack->array[stack->pointer++] = elem;
