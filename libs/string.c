@@ -20,9 +20,7 @@ STR* del_str(STR* str) {
 
 STR* push_char(STR* str, char letter) {
 	str->len += 1;
-	str->word = (char*)realloc(
-            str->word,
-            sizeof(char) * str->len);
+	str->word = (char*)realloc(str->word,sizeof(char) * str->len);
 	str->word[str->len-1] = letter;
 
     return str;
