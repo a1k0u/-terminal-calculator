@@ -61,7 +61,3 @@ int compare_str(STR* str1, STR* str2) {
 
     return 1;
 }
-
-void print_str(STR* string) {
-    printf("%s\n", string->word);
-}

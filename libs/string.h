@@ -5,10 +5,9 @@ typedef struct Str {
     int len;
 } STR;
 
-STR* init_str();
-STR* del_str(STR* str);
+int compare_str(STR* str1, STR* str2);
 STR* push_char(STR* str, char symb);
 STR* strip_str(STR* str, char symb);
-int compare_str(STR* str1, STR* str2);
-void print_str(STR* string);
+STR* del_str(STR* str);
 STR* input_str();
+STR* init_str();

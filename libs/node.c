@@ -1,13 +1,22 @@
 #include "node.h"
-#include "stack.h"
+#include "parsing.h"
 #include <stdlib.h>
 
-NODE* create_node(int is_num, long double image, long double real, char operation) {
-    NODE *node = (NODE *) malloc(sizeof(NODE));
-    node->is_number_flag = is_num;
+NODE* create_node(STR* var, int type) {
+    long double image = 0, real = 0;
+
+    if (type == COMPLEX) {
+        var = strip_str(var, 'j');
+        image = atof(var->word);
+    }
+    else if (type == DOUBLE)
+        real = atof(var->word);
+
+    NODE *node = (NODE*)malloc(sizeof(NODE));
+    node->type = type;
     node->image = image;
     node->real = real;
-    node->operation = operation;
+    node->operation = var->word[0];
 
     return node;
 }
@@ -40,38 +49,14 @@ NODES_ARR* add_node_array(NODES_ARR* nodes_arr, NODE* node) {
     return nodes_arr;
 }
 
+NODES_ARR* insert_node_array(NODES_ARR* nodes_arr, NODE* node, int border) {
+    NODES_ARR* new_arr = init_nodes_arr();
+    for (int i = 0; i < border - 2; ++i)
+        new_arr = add_node_array(new_arr, nodes_arr->array[i]);
+    new_arr = add_node_array(new_arr, node);
+    for (int i = border + 1; i < nodes_arr->length; ++i)
+        new_arr = add_node_array(new_arr, nodes_arr->array[i]);
 
-NODES_ARR* tokenization_string(STR* input) {
-    STACK* stack = init_stack();
-    STR* variable = init_str();
-    STR* type = variable_type[NONE];
-
-    input = strip_str(input, ' ');
-    for (int i = 0; i < input->len; ++i) {
-        if ('0' <= input->word[i] && input->word[i]  <= '9' || input->word[i] == '.') {
-            if (compare_str(type, variable_type[VAR])) {
-                continue;
-            }
-
-            type = variable_type[NUM];
-            variable = push_char(variable, input->word[i]);
-        }
-
-        if ('a' <= input->word[i] && input->word[i] <= 'z' ||
-                    'A' <= input->word[i] && input->word[i] <= 'Z') {
-            if (compare_str(type, variable_type[NUM])) {}
-        }
-
-        if (variable->len == 1)
-            for (int j = 0; j < sizeof(operations) / sizeof(STR); ++j)
-                if (compare_str(variable, operations[j])) {
-                    stack = add_to_stack(stack, variable);
-
-                    variable = del_str(variable);
-                    variable = init_str();
-                }
-
-    }
-
-    return NULL;
+    nodes_arr = delete_nodes_arr(nodes_arr);
+    return new_arr;
 }

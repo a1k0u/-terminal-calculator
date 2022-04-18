@@ -9,6 +9,10 @@ STACK* init_stack() {
     return stack;
 }
 
+STR* take_head_stack(STACK* stack) {
+    return stack->array[stack->pointer - 1];
+}
+
 STACK* add_to_stack(STACK* stack, STR* elem) {
     if (stack->capacity == stack->pointer) {
         stack->array = (STR**)realloc(stack->array,sizeof(STR*) * (stack->capacity * 2 + 1));

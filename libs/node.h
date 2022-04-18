@@ -3,30 +3,11 @@
 
 #include "string.h"
 
-STR variable_type[3][5] = {
-        {"NUM", 3},
-        {"VAR", 3},
-        {"NONE", 4}
-};
-
-STR operations[5][2] = {
-        {"+", 1},
-        {"-", 1},
-        {"*", 1},
-        {"/", 1},
-        {"^", 1},
-};
-
-typedef enum var_type {NUM, VAR, NONE} TYPE;
-typedef enum functions {PLUS, MINUS, MULTIPLICATION, DIVIDE,
-                        POWER, SIN, COS, LN, SQRT, EXP, REAL,
-                        IMAG, MAG, PHASE} FUNCS;
-
 typedef struct Node {
-    int is_number_flag;
+    int type;
     long double image;
     long double real;
-    int operation;
+    char operation;
 } NODE;
 
 typedef struct Nodes {
@@ -34,10 +15,10 @@ typedef struct Nodes {
     int length, capacity;
 } NODES_ARR;
 
-NODE* create_node(int is_num, long double image, long double real, char operation);
+NODE* create_node(STR* var, int type);
 NODES_ARR* add_node_array(NODES_ARR* nodes_arr, NODE* node);
+NODES_ARR* insert_node_array(NODES_ARR* nodes_arr, NODE* node, int border);
 NODES_ARR* delete_nodes_arr(NODES_ARR* nodes_arr);
-NODES_ARR* tokenization_string(STR* input);
 NODES_ARR* init_nodes_arr();
 
 #endif //TERMINAL_CALCULATOR_NODE_H

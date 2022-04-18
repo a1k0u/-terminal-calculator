@@ -9,9 +9,10 @@ typedef struct Stack {
     int pointer;
 } STACK;
 
-STACK* init_stack();
-STACK* del_stack(STACK* stack);
 STACK* add_to_stack(STACK* stack, STR* elem);
+STR* take_head_stack(STACK* stack);
 STR* pop_from_stack(STACK* stack);
+STACK* del_stack(STACK* stack);
+STACK* init_stack();
 
 #endif //TERMINAL_CALCULATOR_STACK_H
