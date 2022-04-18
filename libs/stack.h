@@ -4,7 +4,7 @@
 #include "string.h"
 
 typedef struct Stack {
-    STR** array;
+    STR* array;
     int capacity;
     int pointer;
 } STACK;

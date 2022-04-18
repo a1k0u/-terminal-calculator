@@ -7,11 +7,11 @@ typedef struct Node {
     int type;
     long double image;
     long double real;
-    char operation;
+    char action;
 } NODE;
 
 typedef struct Nodes {
-    NODE** array;
+    NODE* array;
     int length, capacity;
 } NODES_ARR;
 
