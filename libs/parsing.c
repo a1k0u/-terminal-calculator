@@ -59,12 +59,12 @@ NODES_ARR* tokenization_string(STR* input) {
     return nodes_arr;
 }
 
-int token_processing(NODES_ARR* tokens) {
+long double token_processing(NODES_ARR* tokens) {
     int index = 0;
     while (tokens->length != 1) {
         NODE obj = tokens->array[index];
         if (obj.type == OPERATION) {
-            long double a = tokens->array[index - 1].real, b = tokens->array[index - 2].real, res;
+            long double a = tokens->array[index - 2].real, b = tokens->array[index - 1].real, res;
             if (obj.action == '+')
                 res = a + b;
             else if (obj.action == '-')
@@ -74,7 +74,7 @@ int token_processing(NODES_ARR* tokens) {
             else if (obj.action == '/')
                 res = a / b;
             else
-                res = a * a;
+                res = powl(a, b);
 
             NODE* new_node = (NODE*)malloc(sizeof(NODE));
             new_node->type = DOUBLE;

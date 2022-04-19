@@ -19,5 +19,5 @@
 typedef enum var_type {DOUBLE, COMPLEX, OPERATION, VAR, NONE} TYPE;
 
 NODES_ARR* tokenization_string(STR* input);
-int token_processing(NODES_ARR* tokens);
+long double token_processing(NODES_ARR* tokens);
 #endif //TERMINAL_CALCULATOR_PARSING_H
