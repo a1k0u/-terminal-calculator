@@ -1,5 +1,6 @@
 #include "parsing.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include "stack.h"
 #include <math.h>
 
@@ -37,9 +38,10 @@ NODES_ARR* tokenization_string(STR* input) {
             variable = push_char(variable, input->word[i]);
             for (int j = 0; j < sizeof(oper) / sizeof(STR); ++j) {
                 if (compare_str(oper[j], variable)) {
-                    while (stack->pointer && variable->len <= take_head_stack(stack)->len)
+                    while (stack->pointer && oper[j]->len <= take_head_stack(stack)->len) {
                         nodes_arr = add_node_array(nodes_arr, create_node(pop_from_stack(stack), OPERATION));
-                    stack = add_to_stack(stack, variable);
+                    }
+                    stack = add_to_stack(stack, oper[j]);
                     added(&variable, &type);
                     break;
                 }
@@ -55,6 +57,13 @@ NODES_ARR* tokenization_string(STR* input) {
 
     stack = del_stack(stack);
     variable = del_str(variable);
+
+    for (int i = 0; i < nodes_arr->length; ++i)
+        if (nodes_arr->array[i].type == DOUBLE)
+            printf("%Lf ", nodes_arr->array[i].real);
+        else
+            printf("%c ", nodes_arr->array[i].action);
+    printf("\n");
 
     return nodes_arr;
 }

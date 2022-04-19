@@ -55,7 +55,8 @@ int compare_str(STR* str1, STR* str2) {
 //    if (str1->len != str2->len)
 //        return 0;
 
-    for (int i = 0; i < str1->len; ++i)
+    int length = str1->len > str2->len ? str2->len : str1->len;
+    for (int i = 0; i < length; ++i)
         if (str1->word[i] != str2->word[i])
             return 0;
 
