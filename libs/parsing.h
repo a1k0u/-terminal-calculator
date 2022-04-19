@@ -1,23 +1,43 @@
 #ifndef TERMINAL_CALCULATOR_PARSING_H
 #define TERMINAL_CALCULATOR_PARSING_H
 
-#include "string.h"
+#include "str.h"
 #include "node.h"
+#include <math.h>
 
-//STR built_in_funcs[][2] = {
-//        {"sin", 3},
-//        {"cos", 3},
-//        {"ln", 2},
-//        {"sqrt", 4},
-//        {"exp", 3},
-//        {"real", 4},
-//        {"imag", 4},
-//        {"mag", 3},
-//        {"phase", 5},
-//};
+#define IMAG_ONE 1
 
-typedef enum var_type {DOUBLE, COMPLEX, OPERATION, VAR, NONE} TYPE;
+enum type {NONE, COMPLEX, DOUBLE, OPERATION, VARIABLE, FUNCTION, CONST};
+enum priority {FIRST, SECOND, THIRD, EMPTY};
+
+STR BUILT[][2] = {
+        {"sin",   FUNCTION},
+        {"cos",   FUNCTION},
+        {"ln",    FUNCTION},
+        {"sqrt",  FUNCTION},
+        {"exp",   FUNCTION},
+        {"real",  FUNCTION},
+        {"imag",  FUNCTION},
+        {"mag",   FUNCTION},
+        {"phase", FUNCTION},
+};
+
+STR CONSTANT[][2] = {
+        {"PI",  M_PI},
+        {"e", M_E},
+        {"j", IMAG_ONE},
+};
+
+STR ACTIONS[][2] = {
+        {"+", FIRST},
+        {"-", FIRST},
+        {"*", SECOND},
+        {"/", SECOND},
+        {"^", THIRD},
+        {"(", EMPTY},
+        {")", EMPTY},
+};
 
 NODES_ARR* tokenization_string(STR* input);
-long double token_processing(NODES_ARR* tokens);
+long complex token_processing(NODES_ARR* tokens);
 #endif //TERMINAL_CALCULATOR_PARSING_H

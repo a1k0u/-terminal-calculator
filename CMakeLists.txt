@@ -6,14 +6,14 @@ set(CMAKE_C_STANDARD 11)
 include_directories(.)
 add_executable(terminal_calculator
         main.c
-        libs/string.c
-        libs/string.h
+        libs/str.c
+        libs/str.h
         libs/stack.c
         libs/stack.h
         libs/node.c
         libs/node.h
         libs/parsing.c
         libs/parsing.h
-        )
+        libs/function.c libs/function.h)
 
 target_link_libraries(terminal_calculator m)

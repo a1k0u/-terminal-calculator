@@ -1,53 +1,121 @@
 #include "parsing.h"
-#include <stdlib.h>
-#include <stdio.h>
 #include "stack.h"
+#include <string.h>
+#include <ctype.h>
+#include <stdio.h>
 #include <math.h>
 
-STR oper[5][2] = {
-        {"+", 1},
-        {"-", 1},
-        {"*", 2},
-        {"/", 2},
-        {"^", 3},
-};
 
-void added(STR** var, int* type) {
-    *var = init_str();
-    *type = NONE;
-}
-
-NODES_ARR* tokenization_string(STR* input) {
-    int sign = 1, type = NONE;
+NODES_ARRAY* tokenization_string(STR* input) {
+    NODES_ARRAY* nodes_arr = init_nodes_arr();
     STACK* stack = init_stack();
     STR* variable = init_str();
-    NODES_ARR* nodes_arr = init_nodes_arr();
 
-    input = strip_str(input, ' ');
-    for (int i = 0; i < input->len; ++i) {
-        if ('0' <= input->word[i] && input->word[i]  <= '9' || input->word[i] == '.') {
-            type = DOUBLE;
-            variable = push_char(variable, input->word[i]);
+    input = delete_symbols(input, ' ');
+
+    if (input->data[0] == '-' || input->data[0] == '+') {
+        STR *temporary = init_str();
+        strcat(temporary->data, "0");
+        strcat(temporary->data, input->data);
+        input = delete_str(input);
+
+        input = temporary;
+    }
+
+    for (int i = 0; i < strlen(input->data); ++i) {
+        if (isdigit(input->data[i]) || input->data[i] == '.') {
+            if (variable->str_info != FUNCTION)
+                variable->str_info = DOUBLE;
+
+            strncat(variable->data, &input->data[i], 1);
         }
-        else {
-            if (type == DOUBLE) {
-                nodes_arr = add_node_array(nodes_arr, create_node(variable, type));
-                added(&variable, &type);
+        else if (ispunct(input->data[i])) {
+            if (variable->str_info == DOUBLE) {
+                nodes_arr = add_node_array(
+                        nodes_arr, create_node(variable, DOUBLE)
+                        );
+                variable = init_str();
+            }
+            else if (variable->str_info == VARIABLE) {
+                if (strncmp(&input->data[i], "(", 1)) {
+                    for (int k = 0; k < sizeof(BUILT) / sizeof(STR); ++k) {
+                        if (strcmp(BUILT[k]->data, variable->data)) {
+                            variable->str_info = FUNCTION;
+                        }
+                    }
+
+                    if (variable->str_info == FUNCTION)
+                        continue;
+                    else {} // except!
+                }
+                else {
+                    for (int k = 0; k < sizeof(CONSTANT) / sizeof(STR); ++k)
+                        if (strcmp(CONSTANT[k]->data, variable->data)) {
+                            int type = DOUBLE;
+                            if (strcmp(CONSTANT[k]->data, "j"))
+                                type = COMPLEX;
+
+                            STR* constant = init_str();
+                            sprintf(constant->data, "%Lf", CONSTANT[k]->str_info);
+                            nodes_arr = add_node_array(
+                                    nodes_arr, create_node(constant, type)
+                                    );
+
+                            variable->str_info = CONST;
+                        }
+
+                    if (variable->str_info == CONST) {
+                        variable = delete_str(variable);
+                        variable = init_str();
+                        continue;
+                    }
+
+                    // go to hash table
+                }
+            }
+            else if (variable->str_info == FUNCTION) {
+                if (strncmp(&input->data[i], ")", 1)) {
+
+                }
+                else {} // except
             }
 
-            variable = push_char(variable, input->word[i]);
-            for (int j = 0; j < sizeof(oper) / sizeof(STR); ++j) {
-                if (compare_str(oper[j], variable)) {
-                    while (stack->pointer && oper[j]->len <= take_head_stack(stack)->len) {
-                        nodes_arr = add_node_array(nodes_arr, create_node(pop_from_stack(stack), OPERATION));
+            for (int j = 0; j < sizeof(ACTIONS) / sizeof(STR); ++j) {
+                if (strncmp(&input->data[i], ACTIONS[j]->data, 1)) {
+                    if (strcmp(ACTIONS[j]->data, "("))
+                        add_to_stack(stack, ACTIONS[j]);
+                    else if (strcmp(ACTIONS[j]->data, ")")) {
+                        while (!strcmp(take_head_stack(stack)->data, "("))
+                            nodes_arr = add_node_array(
+                                    nodes_arr,create_node(pop_from_stack(stack), OPERATION)
+                               );
+                        delete_str(pop_from_stack(stack));
                     }
-                    stack = add_to_stack(stack, oper[j]);
-                    added(&variable, &type);
-                    break;
+                    else {
+                        while (stack->pointer && ACTIONS[j]->str_info <= take_head_stack(stack)->str_info) {
+                            nodes_arr = add_node_array(
+                                    nodes_arr, create_node(pop_from_stack(stack), OPERATION)
+                                    );
+                        }
+                        stack = add_to_stack(stack, ACTIONS[j]);
+                    }
                 }
             }
         }
+        else if (isalpha(input->data[i])) {
+            if (strncmp(&input->data[i], "j", 1) && variable->str_info == DOUBLE) {
+                nodes_arr = add_node_array(
+                        nodes_arr, create_node(variable, COMPLEX)
+                        );
+                variable = init_str();
+                continue;
+            }
+
+            strncmp(variable, &input->data[i]);
+            variable->str_info = VARIABLE;
+        }
     }
+
     if (type == DOUBLE)
         nodes_arr = add_node_array(nodes_arr, create_node(variable, type));
 
