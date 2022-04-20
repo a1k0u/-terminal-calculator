@@ -1,7 +1,6 @@
 #include "parsing.h"
 #include "node.h"
 #include <stdlib.h>
-#include <string.h>
 
 NODE* create_node(STR* var, int sign) {
     NODE *node = (NODE*)malloc(sizeof(NODE));

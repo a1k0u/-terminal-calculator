@@ -1,36 +1,35 @@
 #include "parsing.h"
 #include "stack.h"
-#include <string.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <math.h>
 
 STR BUILT[][2] = {
-        {"sin",   FUN},
-        {"cos",   FUN},
-        {"ln",    FUN},
-        {"sqrt",  FUN},
-        {"exp",   FUN},
-        {"real",  FUN},
-        {"imag",  FUN},
-        {"mag",   FUN},
-        {"phase", FUN},
+        {"sin",   FUN, 3},
+        {"cos",   FUN, 3},
+        {"ln",    FUN, 2},
+        {"sqrt",  FUN, 4},
+        {"exp",   FUN, 3},
+        {"real",  FUN, 4},
+        {"imag",  FUN, 4},
+        {"mag",   FUN, 3},
+        {"phase", FUN, 5},
 };
 
 STR CONSTANT[][2] = {
-        {"PI",  CST},
-        {"e", CST},
-        {"j", IMAG_ONE},
+        {"PI",  CST, 2},
+        {"e", CST, 1},
+        {"j", IMAG_ONE, 1},
 };
 
 STR ACTIONS[][2] = {
-        {"+", FIRST},
-        {"-", FIRST},
-        {"*", SECOND},
-        {"/", SECOND},
-        {"^", THIRD},
-        {"(", EMPTY},
-        {")", EMPTY},
+        {"+", FIRST, 1},
+        {"-", FIRST, 1},
+        {"*", SECOND, 1},
+        {"/", SECOND, 1},
+        {"^", THIRD, 1},
+        {"(", EMPTY, 1},
+        {")", EMPTY, 1},
 };
 
 
@@ -40,7 +39,7 @@ NODES_ARRAY* tokenization_string(STR* input) {
     int sign = 1;
 
     input = delete_symbols(input, ' ');
-    for (int i = 0; i < strlen(input->data); ++i) {
+    for (int i = 0; i < input->len; ++i) {
 
         for (int j = 0; j < 7; ++j) {
             if (input->data[i] == ACTIONS[j]->data[0]) {
@@ -52,20 +51,18 @@ NODES_ARRAY* tokenization_string(STR* input) {
                     else if (ACTIONS[j]->data[0] == '+')
                         sign *= 1;
                     else {} // syntax error
-
-                    var->info = DBL;
                     break;
                 }
 
-                if (strlen(var->data) && var->data[0] == '.') {} // syntax error
+                if (var->len && var->data[0] == '.') {} // syntax error
 
-                if (strlen(var->data))
+                if (var->len)
                     nodes_array = add_node_array(nodes_array, create_node(var, sign));
                 var = init_str();
                 sign = 1;
 
                 STR* tmp = init_str();
-                strcat(tmp->data, ACTIONS[j]->data);
+                push_str(tmp, ACTIONS[j]->data[0]);
                 tmp->info = OPN;
                 nodes_array = add_node_array(nodes_array, create_node(tmp, sign));
             }
@@ -74,17 +71,17 @@ NODES_ARRAY* tokenization_string(STR* input) {
         if (isdigit(input->data[i]) || input->data[i] == '.') {
 
             if (var->info == VAR || var->info == FUN) {
-                strncat(var->data, &input->data[i], 1);
+                push_str(var, input->data[i]);
                 var->info = VAR;
                 continue;
             }
 
-            strncat(var->data, &input->data[i], 1);
+            push_str(var, input->data[i]);
             var->info = DBL;
         }
 
         if (isalpha(input->data[i])) {
-            strncat(var->data, &input->data[i], 1);
+            push_str(var, input->data[i]);
 
             if (var->info == DBL || var->info == CMP) {
                 if (input->data[i] == 'j' && var->info != CMP) {
@@ -97,11 +94,11 @@ NODES_ARRAY* tokenization_string(STR* input) {
             var->info = NON;
 
             for (int j = 0; j < sizeof(BUILT) / sizeof(STR); ++j)
-                if (strcmp(BUILT[j]->data, var->data))
+                if (compare_str(BUILT[j], var))
                     var->info = FUN;
 
             for (int j = 0; j < sizeof(CONSTANT) / sizeof(STR); ++j)
-                if (strcmp(CONSTANT[j]->data, var->data))
+                if (compare_str(CONSTANT[j], var))
                     var->info = CST;
 
             if (var->info == NON)
@@ -113,7 +110,7 @@ NODES_ARRAY* tokenization_string(STR* input) {
         // syntax error
     }
 
-    if (strlen(var->data))
+    if (var->len)
         nodes_array = add_node_array(nodes_array, create_node(var, sign));
     var = init_str();
 
