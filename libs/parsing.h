@@ -7,37 +7,9 @@
 
 #define IMAG_ONE 1
 
-enum type {NONE, COMPLEX, DOUBLE, OPERATION, VARIABLE, FUNCTION, CONST};
+enum type {NON, CMP, DBL, OPN, VAR, FUN, CST};
 enum priority {FIRST, SECOND, THIRD, EMPTY};
 
-STR BUILT[][2] = {
-        {"sin",   FUNCTION},
-        {"cos",   FUNCTION},
-        {"ln",    FUNCTION},
-        {"sqrt",  FUNCTION},
-        {"exp",   FUNCTION},
-        {"real",  FUNCTION},
-        {"imag",  FUNCTION},
-        {"mag",   FUNCTION},
-        {"phase", FUNCTION},
-};
-
-STR CONSTANT[][2] = {
-        {"PI",  M_PI},
-        {"e", M_E},
-        {"j", IMAG_ONE},
-};
-
-STR ACTIONS[][2] = {
-        {"+", FIRST},
-        {"-", FIRST},
-        {"*", SECOND},
-        {"/", SECOND},
-        {"^", THIRD},
-        {"(", EMPTY},
-        {")", EMPTY},
-};
-
-NODES_ARR* tokenization_string(STR* input);
-long complex token_processing(NODES_ARR* tokens);
+NODES_ARRAY* tokenization_string(STR* input);
+long complex token_processing(NODES_ARRAY* tokens);
 #endif //TERMINAL_CALCULATOR_PARSING_H

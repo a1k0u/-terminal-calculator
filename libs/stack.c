@@ -5,6 +5,7 @@ STACK* init_stack() {
     STACK* stack = (STACK*)malloc(sizeof(STACK));
     stack->array = (STR*)malloc(sizeof(STR));
     stack->capacity = stack->pointer = 0;
+
     return stack;
 }
 
@@ -13,7 +14,7 @@ STR* take_head_stack(STACK* stack) {
 }
 
 STACK* add_to_stack(STACK* stack, STR* element) {
-    if (stack->capacity == stack->pointer) {
+    if (stack->pointer == stack->capacity) {
         stack->capacity = stack->capacity * 2 + 1;
         stack->array = (STR*)realloc(
                 stack->array,sizeof(STR) * stack->capacity

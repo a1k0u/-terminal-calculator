@@ -5,163 +5,128 @@
 #include <stdio.h>
 #include <math.h>
 
+STR BUILT[][2] = {
+        {"sin",   FUN},
+        {"cos",   FUN},
+        {"ln",    FUN},
+        {"sqrt",  FUN},
+        {"exp",   FUN},
+        {"real",  FUN},
+        {"imag",  FUN},
+        {"mag",   FUN},
+        {"phase", FUN},
+};
+
+STR CONSTANT[][2] = {
+        {"PI",  CST},
+        {"e", CST},
+        {"j", IMAG_ONE},
+};
+
+STR ACTIONS[][2] = {
+        {"+", FIRST},
+        {"-", FIRST},
+        {"*", SECOND},
+        {"/", SECOND},
+        {"^", THIRD},
+        {"(", EMPTY},
+        {")", EMPTY},
+};
+
 
 NODES_ARRAY* tokenization_string(STR* input) {
-    NODES_ARRAY* nodes_arr = init_nodes_arr();
-    STACK* stack = init_stack();
-    STR* variable = init_str();
+    NODES_ARRAY* nodes_array = init_nodes_array();
+    STR* var = init_str();
+    int sign = 1;
 
     input = delete_symbols(input, ' ');
-
-    if (input->data[0] == '-' || input->data[0] == '+') {
-        STR *temporary = init_str();
-        strcat(temporary->data, "0");
-        strcat(temporary->data, input->data);
-        input = delete_str(input);
-
-        input = temporary;
-    }
-
     for (int i = 0; i < strlen(input->data); ++i) {
+
+        for (int j = 0; j < 7; ++j) {
+            if (input->data[i] == ACTIONS[j]->data[0]) {
+                if (var->info == NON && (!nodes_array->length ||
+                    get_last_node(nodes_array)->value->info == OPN)) {
+
+                    if (ACTIONS[j]->data[0] == '-')
+                        sign *= -1;
+                    else if (ACTIONS[j]->data[0] == '+')
+                        sign *= 1;
+                    else {} // syntax error
+
+                    var->info = DBL;
+                    break;
+                }
+
+                if (strlen(var->data) && var->data[0] == '.') {} // syntax error
+
+                if (strlen(var->data))
+                    nodes_array = add_node_array(nodes_array, create_node(var, sign));
+                var = init_str();
+                sign = 1;
+
+                STR* tmp = init_str();
+                strcat(tmp->data, ACTIONS[j]->data);
+                tmp->info = OPN;
+                nodes_array = add_node_array(nodes_array, create_node(tmp, sign));
+            }
+        }
+
         if (isdigit(input->data[i]) || input->data[i] == '.') {
-            if (variable->str_info != FUNCTION)
-                variable->str_info = DOUBLE;
 
-            strncat(variable->data, &input->data[i], 1);
-        }
-        else if (ispunct(input->data[i])) {
-            if (variable->str_info == DOUBLE) {
-                nodes_arr = add_node_array(
-                        nodes_arr, create_node(variable, DOUBLE)
-                        );
-                variable = init_str();
-            }
-            else if (variable->str_info == VARIABLE) {
-                if (strncmp(&input->data[i], "(", 1)) {
-                    for (int k = 0; k < sizeof(BUILT) / sizeof(STR); ++k) {
-                        if (strcmp(BUILT[k]->data, variable->data)) {
-                            variable->str_info = FUNCTION;
-                        }
-                    }
-
-                    if (variable->str_info == FUNCTION)
-                        continue;
-                    else {} // except!
-                }
-                else {
-                    for (int k = 0; k < sizeof(CONSTANT) / sizeof(STR); ++k)
-                        if (strcmp(CONSTANT[k]->data, variable->data)) {
-                            int type = DOUBLE;
-                            if (strcmp(CONSTANT[k]->data, "j"))
-                                type = COMPLEX;
-
-                            STR* constant = init_str();
-                            sprintf(constant->data, "%Lf", CONSTANT[k]->str_info);
-                            nodes_arr = add_node_array(
-                                    nodes_arr, create_node(constant, type)
-                                    );
-
-                            variable->str_info = CONST;
-                        }
-
-                    if (variable->str_info == CONST) {
-                        variable = delete_str(variable);
-                        variable = init_str();
-                        continue;
-                    }
-
-                    // go to hash table
-                }
-            }
-            else if (variable->str_info == FUNCTION) {
-                if (strncmp(&input->data[i], ")", 1)) {
-
-                }
-                else {} // except
-            }
-
-            for (int j = 0; j < sizeof(ACTIONS) / sizeof(STR); ++j) {
-                if (strncmp(&input->data[i], ACTIONS[j]->data, 1)) {
-                    if (strcmp(ACTIONS[j]->data, "("))
-                        add_to_stack(stack, ACTIONS[j]);
-                    else if (strcmp(ACTIONS[j]->data, ")")) {
-                        while (!strcmp(take_head_stack(stack)->data, "("))
-                            nodes_arr = add_node_array(
-                                    nodes_arr,create_node(pop_from_stack(stack), OPERATION)
-                               );
-                        delete_str(pop_from_stack(stack));
-                    }
-                    else {
-                        while (stack->pointer && ACTIONS[j]->str_info <= take_head_stack(stack)->str_info) {
-                            nodes_arr = add_node_array(
-                                    nodes_arr, create_node(pop_from_stack(stack), OPERATION)
-                                    );
-                        }
-                        stack = add_to_stack(stack, ACTIONS[j]);
-                    }
-                }
-            }
-        }
-        else if (isalpha(input->data[i])) {
-            if (strncmp(&input->data[i], "j", 1) && variable->str_info == DOUBLE) {
-                nodes_arr = add_node_array(
-                        nodes_arr, create_node(variable, COMPLEX)
-                        );
-                variable = init_str();
+            if (var->info == VAR || var->info == FUN) {
+                strncat(var->data, &input->data[i], 1);
+                var->info = VAR;
                 continue;
             }
 
-            strncmp(variable, &input->data[i]);
-            variable->str_info = VARIABLE;
+            strncat(var->data, &input->data[i], 1);
+            var->info = DBL;
         }
+
+        if (isalpha(input->data[i])) {
+            strncat(var->data, &input->data[i], 1);
+
+            if (var->info == DBL || var->info == CMP) {
+                if (input->data[i] == 'j' && var->info != CMP) {
+                    var->info = CMP;
+                    continue;
+                }
+                else {} // syntax error
+            }
+
+            var->info = NON;
+
+            for (int j = 0; j < sizeof(BUILT) / sizeof(STR); ++j)
+                if (strcmp(BUILT[j]->data, var->data))
+                    var->info = FUN;
+
+            for (int j = 0; j < sizeof(CONSTANT) / sizeof(STR); ++j)
+                if (strcmp(CONSTANT[j]->data, var->data))
+                    var->info = CST;
+
+            if (var->info == NON)
+                var->info = VAR;
+
+            continue;
+        }
+
+        // syntax error
     }
 
-    if (type == DOUBLE)
-        nodes_arr = add_node_array(nodes_arr, create_node(variable, type));
+    if (strlen(var->data))
+        nodes_array = add_node_array(nodes_array, create_node(var, sign));
+    var = init_str();
 
-    while (stack->pointer)
-        nodes_arr = add_node_array(nodes_arr, create_node(pop_from_stack(stack), OPERATION));
-
-
-    stack = del_stack(stack);
-    variable = del_str(variable);
-
-    for (int i = 0; i < nodes_arr->length; ++i)
-        if (nodes_arr->array[i].type == DOUBLE)
-            printf("%Lf ", nodes_arr->array[i].real);
-        else
-            printf("%c ", nodes_arr->array[i].action);
+    for (int i = 0; i < nodes_array->length; ++i) {
+        if (nodes_array->array[i].sign > 0) {
+            printf("+");
+        }
+        else {
+            printf("-");
+        }
+       printf("%s(%d) ", nodes_array->array[i].value->data, nodes_array->array[i].value->info);
+    }
     printf("\n");
 
-    return nodes_arr;
-}
-
-long double token_processing(NODES_ARR* tokens) {
-    int index = 0;
-    while (tokens->length != 1) {
-        NODE obj = tokens->array[index];
-        if (obj.type == OPERATION) {
-            long double a = tokens->array[index - 2].real, b = tokens->array[index - 1].real, res;
-            if (obj.action == '+')
-                res = a + b;
-            else if (obj.action == '-')
-                res = a - b;
-            else if (obj.action == '*')
-                res = a * b;
-            else if (obj.action == '/')
-                res = a / b;
-            else
-                res = powl(a, b);
-
-            NODE* new_node = (NODE*)malloc(sizeof(NODE));
-            new_node->type = DOUBLE;
-            new_node->real = res;
-            tokens = insert_node_array(tokens, new_node, index);
-            index = 0;
-        }
-
-        index++;
-    }
-
-    return tokens->array[0].real;
+    return nodes_array;
 }

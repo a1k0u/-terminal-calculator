@@ -1,5 +1,5 @@
-//
-// Created by a1k0u on 19.04.2022.
-//
-
 #include "function.h"
+#include <string.h>
+#include <ctype.h>
+#include <complex.h>
+

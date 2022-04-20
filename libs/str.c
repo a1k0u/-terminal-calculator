@@ -8,11 +8,11 @@
 STR* init_str() {
     STR* str = (STR*)malloc(sizeof(STR));
     str->data = (char*)malloc(sizeof(char));
-    str->str_info = NONE;
+    str->info = NON;
     return str;
 }
 
-STR* delete_str(STR* str) {
+STR *delete_str(STR *str) {
     free(str->data);
     free(str);
     return NULL;
