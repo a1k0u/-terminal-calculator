@@ -14,6 +14,6 @@ add_executable(terminal_calculator
         libs/node.h
         libs/parsing.c
         libs/parsing.h
-        libs/function.c libs/function.h)
+        )
 
 target_link_libraries(terminal_calculator m)

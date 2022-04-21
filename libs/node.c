@@ -6,7 +6,6 @@ NODE* create_node(STR* var, int sign) {
     NODE *node = (NODE*)malloc(sizeof(NODE));
     node->value = var;
     node->sign = sign;
-
     return node;
 }
 
@@ -19,7 +18,7 @@ NODES_ARRAY* init_nodes_array() {
 
 NODES_ARRAY* delete_nodes_array(NODES_ARRAY* nodes_arr) {
     for (int i = 0; i < nodes_arr->length; ++i)
-        free(&nodes_arr->array[i]);
+        nodes_arr->array[i] = *delete_node(&nodes_arr->array[i]);
     free(nodes_arr->array);
     free(nodes_arr);
     return NULL;
@@ -50,4 +49,14 @@ NODES_ARRAY* insert_node_array(NODES_ARRAY* nodes_arr, NODE* node, int border) {
 
 NODE* get_last_node(NODES_ARRAY* nodes_arr) {
     return &nodes_arr->array[nodes_arr->length - 1];
+}
+
+STR* take_el(NODES_ARRAY* nodes_array, int i) {
+    return nodes_array->array[i].value;
+}
+
+NODE* delete_node(NODE* node) {
+    node->value = delete_str(node->value);
+    free(node);
+    return NULL;
 }

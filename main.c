@@ -6,6 +6,6 @@
 int main()
 {
     STR* input = input_str();
-    NODES_ARRAY * nodes_arr = tokenization_string(input);
+    NODES_ARRAY * nodes_arr = notation_token(tokenization_string(input));
     return 0;
 }

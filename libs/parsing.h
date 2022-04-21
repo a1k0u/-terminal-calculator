@@ -6,9 +6,9 @@
 #include <math.h>
 
 enum type {NON, CMP, DBL, OPN, VAR, FUN};
-enum priority {FIRST, SECOND, THIRD, EMPTY};
+enum priority {FIRST, SECOND, THIRD, EMPTY = -1};
 
 
 NODES_ARRAY* tokenization_string(STR* input);
-long complex token_processing(NODES_ARRAY* tokens);
+NODES_ARRAY* notation_token(NODES_ARRAY* token);
 #endif //TERMINAL_CALCULATOR_PARSING_H

@@ -28,6 +28,12 @@ STR ACTIONS[][2] = {
         {")", EMPTY, 1},
 };
 
+int get_priority(STR* operation) {
+    for (int i = 0; i < 7; ++i)
+        if (compare_str(operation, ACTIONS[i]))
+            return ACTIONS[i]->info;
+}
+
 NODES_ARRAY* tokenization_string(STR* input) {
     NODES_ARRAY* nodes_array = init_nodes_array();
     STR* var = init_str();
@@ -63,6 +69,7 @@ NODES_ARRAY* tokenization_string(STR* input) {
 
                 STR* tmp = init_str();
                 copy_str(tmp, ACTIONS[j]);
+                tmp->info = OPN;
                 add_node_array(nodes_array, create_node(tmp, sign));
             }
         }
@@ -92,6 +99,40 @@ NODES_ARRAY* tokenization_string(STR* input) {
 
     if (var->len)
         add_node_array(nodes_array, create_node(var, sign));
-    
+
     return nodes_array;
+}
+
+NODES_ARRAY* notation_token(NODES_ARRAY* token) {
+    STACK* stack = init_stack();
+    NODES_ARRAY* notation = init_nodes_array();
+
+    for (int i = 0; i < token->length; ++i) {
+        if (take_el(token, i)->info == OPN || take_el(token, i)->info == FUN) {
+            if (take_el(token, i)->data[0] == '(' || take_el(token, i)->info == FUN)
+                stack = add_to_stack(stack, &token->array[i]);
+            else if (take_el(token, i)->data[0] == ')') {
+                while (stack->pointer && take_head_stack(stack)->value->data[0] != '(')
+                    add_node_array(notation, pop_from_stack(stack));
+
+                pop_from_stack(stack);
+                if (stack->pointer)
+                    if (take_head_stack(stack)->value->info == FUN)
+                        add_node_array(notation, pop_from_stack(stack));
+            }
+            else {
+                int current_priority = get_priority(take_el(token, i));
+                while (stack->pointer && current_priority <= get_priority(take_head_stack(stack)->value))
+                    add_node_array(notation, pop_from_stack(stack));
+                stack = add_to_stack(stack, &token->array[i]);
+            }
+        }
+        else {
+            add_node_array(notation, &token->array[i]);
+        }
+    }
+    while (stack->pointer)
+        add_node_array(notation, pop_from_stack(stack));
+
+    return notation;
 }
