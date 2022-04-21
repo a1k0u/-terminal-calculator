@@ -5,10 +5,9 @@
 #include "node.h"
 #include <math.h>
 
-#define IMAG_ONE 1
-
-enum type {NON, CMP, DBL, OPN, VAR, FUN, CST};
+enum type {NON, CMP, DBL, OPN, VAR, FUN};
 enum priority {FIRST, SECOND, THIRD, EMPTY};
+
 
 NODES_ARRAY* tokenization_string(STR* input);
 long complex token_processing(NODES_ARRAY* tokens);

@@ -57,3 +57,9 @@ STR* input_str() {
 
     return new_str;
 }
+
+void copy_str(STR* str1, STR* str2) {
+    for (int i = 0; i < str2->len; ++i)
+        push_str(str1, str2->data[i]);
+    str1->info = str2->info;
+}
