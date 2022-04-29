@@ -3,7 +3,7 @@
 
 #include "str.h"
 #include <complex.h>
-#define Complex long double complex
+#define COMPLEX long double complex
 
 
 #endif //TERMINAL_CALCULATOR_HASH_TABLE_H

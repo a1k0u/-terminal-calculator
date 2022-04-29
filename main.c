@@ -9,7 +9,7 @@ int main()
     STR* input = input_str();
     STR* tmp = init_str();
     copy_str(tmp, input);
-    Complex result = calc(notation_token(tokenization_string(tmp)));
+    COMPLEX result = calc(notation_token(tokenization_string(tmp)));
     printf("%s = %lf + %lfj", input->data, creal(result), cimag(result));
     return 0;
 }

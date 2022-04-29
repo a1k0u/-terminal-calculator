@@ -8,20 +8,20 @@
 #include <complex.h>
 
 
-Complex hash_table[1000000] = {0};
+COMPLEX hash_table[1000000] = {0};
 int keys[1000000] = {0};
 
 long int M = 1000000;
 long int p = 127;
 
 int hash(STR* data) {
-    long int index = 0, k = 1;
+    long int index = 0;
+    long int k     = 1;
     for (int i = 0; i < data->len; ++i) {
         index += (long int) data->data[i] * k;
         index %= M;
-        k *= p;
+        k     *= p;
     }
-
     return index % M;
 }
 
@@ -54,88 +54,93 @@ STR CONSTANTS[][3] = {
         {"j", VAR, 1},
 };
 
+void setConstants() {
+    keys[hash(CONSTANTS[PI])] = 1;
+    keys[hash(CONSTANTS[E])]  = 1;
+    keys[hash(CONSTANTS[J])]  = 1;
+
+    hash_table[hash(CONSTANTS[PI])] = CMPLXL(M_PI, 0);
+    hash_table[hash(CONSTANTS[E])]  = CMPLXL(M_E, 0);
+    hash_table[hash(CONSTANTS[J])]  = CMPLXL(0, 1);
+
+}
+
 int get_priority(STR* operation) {
     for (int i = 0; i < 7; ++i)
         if (compare_str(operation, ACTIONS[i]))
             return ACTIONS[i]->info;
 }
 
-Complex calc(NODES_ARRAY* notation) {
-    int index = 0;
+COMPLEX calc(NODES_ARRAY* notation) {
+    int index       = 0;
+    int insert_flag = RESULT_NONE;
+    COMPLEX result;
+
     while (notation->length != 1) {
-        if (!index) {
-            for (int i = 0; i < notation->length; ++i) {
-                if (notation->array[i].value->info != OPN && notation->array[i].value->info != FUN) {
-                    printf("%.3lf+%.3lfj ", creal(notation->array[i].number), cimag(notation->array[i].number));
-                }
-                else {
-                    printf("%s ", notation->array[i].value->data);
-                }
-            }
-            printf("\n");
-        }
-        if(notation->array[index].value->info == OPN) {
-            Complex a = notation->array[index - 2].number;
-            Complex b = notation->array[index - 1].number;
-            Complex result;
-            if (notation->array[index].value->data[0] == '+')
+        STR* current_string = notation->array[index].value;
+        if(current_string->info == OPN) {
+            COMPLEX a = notation->array[index - 2].number;
+            COMPLEX b = notation->array[index - 1].number;
+            if (compare_str(current_string, ACTIONS[PLUS]))
                 result = a + b;
-            else if (notation->array[index].value->data[0] == '-')
+            else if (compare_str(current_string, ACTIONS[MINUS]))
                 result = a - b;
-            else if (notation->array[index].value->data[0] == '*')
+            else if (compare_str(current_string, ACTIONS[MULTIPLY]))
                 result = a * b;
-            else if (notation->array[index].value->data[0] == '/')
+            else if (compare_str(current_string, ACTIONS[DIVIDE]))
                 result = a / b;
-            else if (notation->array[index].value->data[0] == '^')
+            else if (compare_str(current_string, ACTIONS[POWER]))
                 result = cpowl(a, b);
 
-            STR tmp = {"", CMP, 0};
-            NODE* new_node = create_node(&tmp, 1);
-            new_node->number = result;
-            notation = insert_node_array(notation, new_node, index, 2);
-            index = 0;
-            continue;
+            insert_flag = RESULT_ACTION;
         }
         else if (notation->array[index].value->info == FUN) {
-            Complex a = notation->array[index - 1].number;
-            Complex result;
-            STR* ptr = notation->array[index].value;
-            if (compare_str(ptr, BUILT[SIN]))
+            COMPLEX a = notation->array[index - 1].number;
+            if (compare_str(current_string, BUILT[SIN]))
                 result = csinl(a);
-            else if (compare_str(ptr, BUILT[COS]))
+            else if (compare_str(current_string, BUILT[COS]))
                 result = ccosl(a);
-            else if (compare_str(ptr, BUILT[LN]))
+            else if (compare_str(current_string, BUILT[LN]))
                 result = clogl(a);
-            else if (compare_str(ptr, BUILT[SQRT]))
+            else if (compare_str(current_string, BUILT[SQRT]))
                 result = csqrtl(a);
-            else if (compare_str(ptr, BUILT[EXP]))
+            else if (compare_str(current_string, BUILT[EXP]))
                 result = cexpl(a);
-            else if (compare_str(ptr, BUILT[REAL]))
+            else if (compare_str(current_string, BUILT[REAL]))
                 result = CMPLXL(creal(a), 0);
-            else if (compare_str(ptr, BUILT[IMAG]))
+            else if (compare_str(current_string, BUILT[IMAG]))
                 result = CMPLXL(cimag(a), 0);
-/*            else if (compare_str(ptr, BUILT[MAG]))
-                result =
-            else if (compare_str(ptr, BUILT[PHASE]))
-                result = CMPLXL(0, cimag(a));
-*/
-            STR tmp = {"", CMP, 0};
-            NODE* new_node = create_node(&tmp, 1);
+            else if (compare_str(current_string, BUILT[MAG]))
+                result = CMPLXL(sqrtl(powl(cimag(a), 2) + powl(creal(a), 2)), 0);
+            else if (compare_str(current_string, BUILT[PHASE]))
+                result = cargl(a);
+
+            insert_flag = RESULT_FUNC;
+        }
+
+        if (insert_flag != RESULT_NONE) {
+            STR tmp          = {"", CMP, 0};
+            NODE* new_node   = create_node(&tmp, 1);
             new_node->number = result;
-            notation = insert_node_array(notation, new_node, index, 1);
-            index = 0;
+            notation = insert_node_array(
+                    notation,
+                    new_node,
+                    index,
+                    insert_flag
+                    );
+            insert_flag = RESULT_NONE;
+            index       = 0;
             continue;
         }
-        index += 1;
+        index++;
     }
-
     return notation->array[0].number;
 }
 
 NODES_ARRAY* tokenization_string(STR* input) {
     NODES_ARRAY* nodes_array = init_nodes_array();
     STR* var = init_str();
-    int sign = 1;
+    int number_sign = 1;
 
     input = delete_symbols(input, ' ');
     for (int i = 0; i < input->len; ++i) {
@@ -147,9 +152,9 @@ NODES_ARRAY* tokenization_string(STR* input) {
                         get_last_node(nodes_array)->value->data[0] != ')')) {
 
                     if (ACTIONS[j]->data[0] == '-')
-                        sign *= -1;
+                        number_sign *= -1;
                     else if (ACTIONS[j]->data[0] == '+')
-                        sign *= 1;
+                        number_sign *= 1;
                     else
                         printf("syntax!\n");
                     break;
@@ -161,15 +166,15 @@ NODES_ARRAY* tokenization_string(STR* input) {
                 if (var->len) {
                     if (var->info == FUN && input->data[i] != '(')
                         var->info = VAR;
-                    add_node_array(nodes_array, create_node(var, sign));
+                    add_node_array(nodes_array, create_node(var, number_sign));
                     var = init_str();
-                    sign = 1;
+                    number_sign = 1;
                 }
 
                 STR* tmp = init_str();
                 copy_str(tmp, ACTIONS[j]);
                 tmp->info = OPN;
-                add_node_array(nodes_array, create_node(tmp, sign));
+                add_node_array(nodes_array, create_node(tmp, number_sign));
             }
         }
 
@@ -197,37 +202,14 @@ NODES_ARRAY* tokenization_string(STR* input) {
     }
 
     if (var->len)
-        add_node_array(nodes_array, create_node(var, sign));
-
-
-    for (int i = 0; i < nodes_array->length; ++i) {
-        if (nodes_array->array[i].value->info != OPN) {
-            if (nodes_array->array[i].sign < 0) {
-                printf("-");
-            }
-        }
-        printf("%s(%s) ", nodes_array->array[i].value->data,
-               nodes_array->array[i].value->info == FUN ? "FUN" :
-               nodes_array->array[i].value->info == VAR ? "VAR" :
-               nodes_array->array[i].value->info == CMP ? "CMP" :
-               nodes_array->array[i].value->info == DBL ? "DBL" :
-               "OPN");
-    }
-    printf("\n");
-
+        add_node_array(nodes_array, create_node(var, number_sign));
     return nodes_array;
 }
 
 NODES_ARRAY* notation_token(NODES_ARRAY* token) {
-    keys[hash(CONSTANTS[0])] = 1;
-    keys[hash(CONSTANTS[1])] = 1;
-    keys[hash(CONSTANTS[2])] = 1;
+    setConstants();
 
-    hash_table[hash(CONSTANTS[0])] = CMPLXL(M_PI, 0);
-    hash_table[hash(CONSTANTS[1])] = CMPLXL(M_E, 0);
-    hash_table[hash(CONSTANTS[2])] = CMPLXL(0, 1);
-
-    STACK* stack = init_stack();
+    STACK* stack          = init_stack();
     NODES_ARRAY* notation = init_nodes_array();
 
     for (int i = 0; i < token->length; ++i) {
@@ -256,9 +238,8 @@ NODES_ARRAY* notation_token(NODES_ARRAY* token) {
                 if (!keys[index_of_hash_table]) {
                     printf("%s? >> ", token->array[i].value->data);
                     STR* expression = input_str();
-                    Complex value = calc(notation_token(tokenization_string(expression)));
+                    COMPLEX value = calc(notation_token(tokenization_string(expression)));
                     hash_table[index_of_hash_table] = value;
-                    printf("%s = %lf + %lfj\n", token->array[i].value->data, creal(value), cimag(value));
                 }
                 keys[index_of_hash_table] = 1;
 
@@ -274,8 +255,8 @@ NODES_ARRAY* notation_token(NODES_ARRAY* token) {
             add_node_array(notation, &token->array[i]);
         }
     }
+
     while (stack->pointer)
         add_node_array(notation, pop_from_stack(stack));
-
     return notation;
 }
