@@ -17,7 +17,7 @@ typedef struct Nodes {
 
 NODE* create_node(STR* var, int sign);
 void add_node_array(NODES_ARRAY* nodes_arr, NODE* node);
-NODES_ARRAY* insert_node_array(NODES_ARRAY* nodes_arr, NODE* node, int border);
+NODES_ARRAY* insert_node_array(NODES_ARRAY* nodes_arr, NODE* node, int border, int k);
 NODES_ARRAY* delete_nodes_array(NODES_ARRAY* nodes_arr);
 NODE* get_last_node(NODES_ARRAY* nodes_arr);
 NODES_ARRAY* init_nodes_array();

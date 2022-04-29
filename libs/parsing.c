@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <limits.h>
 #include "hash_table.h"
 #include <complex.h>
 
@@ -62,7 +61,75 @@ int get_priority(STR* operation) {
 }
 
 Complex calc(NODES_ARRAY* notation) {
+    int index = 0;
+    while (notation->length != 1) {
+        if (!index) {
+            for (int i = 0; i < notation->length; ++i) {
+                if (notation->array[i].value->info != OPN && notation->array[i].value->info != FUN) {
+                    printf("%.3lf+%.3lfj ", creal(notation->array[i].number), cimag(notation->array[i].number));
+                }
+                else {
+                    printf("%s ", notation->array[i].value->data);
+                }
+            }
+            printf("\n");
+        }
+        if(notation->array[index].value->info == OPN) {
+            Complex a = notation->array[index - 2].number;
+            Complex b = notation->array[index - 1].number;
+            Complex result;
+            if (notation->array[index].value->data[0] == '+')
+                result = a + b;
+            else if (notation->array[index].value->data[0] == '-')
+                result = a - b;
+            else if (notation->array[index].value->data[0] == '*')
+                result = a * b;
+            else if (notation->array[index].value->data[0] == '/')
+                result = a / b;
+            else if (notation->array[index].value->data[0] == '^')
+                result = cpowl(a, b);
 
+            STR tmp = {"", CMP, 0};
+            NODE* new_node = create_node(&tmp, 1);
+            new_node->number = result;
+            notation = insert_node_array(notation, new_node, index, 2);
+            index = 0;
+            continue;
+        }
+        else if (notation->array[index].value->info == FUN) {
+            Complex a = notation->array[index - 1].number;
+            Complex result;
+            STR* ptr = notation->array[index].value;
+            if (compare_str(ptr, BUILT[SIN]))
+                result = csinl(a);
+            else if (compare_str(ptr, BUILT[COS]))
+                result = ccosl(a);
+            else if (compare_str(ptr, BUILT[LN]))
+                result = clogl(a);
+            else if (compare_str(ptr, BUILT[SQRT]))
+                result = csqrtl(a);
+            else if (compare_str(ptr, BUILT[EXP]))
+                result = cexpl(a);
+            else if (compare_str(ptr, BUILT[REAL]))
+                result = CMPLXL(creal(a), 0);
+            else if (compare_str(ptr, BUILT[IMAG]))
+                result = CMPLXL(cimag(a), 0);
+/*            else if (compare_str(ptr, BUILT[MAG]))
+                result =
+            else if (compare_str(ptr, BUILT[PHASE]))
+                result = CMPLXL(0, cimag(a));
+*/
+            STR tmp = {"", CMP, 0};
+            NODE* new_node = create_node(&tmp, 1);
+            new_node->number = result;
+            notation = insert_node_array(notation, new_node, index, 1);
+            index = 0;
+            continue;
+        }
+        index += 1;
+    }
+
+    return notation->array[0].number;
 }
 
 NODES_ARRAY* tokenization_string(STR* input) {
@@ -76,7 +143,8 @@ NODES_ARRAY* tokenization_string(STR* input) {
             if (input->data[i] == ACTIONS[j]->data[0]) {
                 if ((input->data[i] == '+' || input->data[i] == '-')
                     && var->info == NON && (!nodes_array->length ||
-                    get_last_node(nodes_array)->value->info == OPN)) {
+                    get_last_node(nodes_array)->value->info == OPN &&
+                        get_last_node(nodes_array)->value->data[0] != ')')) {
 
                     if (ACTIONS[j]->data[0] == '-')
                         sign *= -1;
@@ -187,36 +255,27 @@ NODES_ARRAY* notation_token(NODES_ARRAY* token) {
                 long int index_of_hash_table = hash(token->array[i].value);
                 if (!keys[index_of_hash_table]) {
                     printf("%s? >> ", token->array[i].value->data);
-                    STR* expression = init_str();
+                    STR* expression = input_str();
                     Complex value = calc(notation_token(tokenization_string(expression)));
                     hash_table[index_of_hash_table] = value;
+                    printf("%s = %lf + %lfj\n", token->array[i].value->data, creal(value), cimag(value));
                 }
                 keys[index_of_hash_table] = 1;
 
                 token->array[i].number = token->array[i].sign * hash_table[index_of_hash_table];
             }
             else if (token->array[i].value->info == DBL) {
-                token->array[i].number = token->array[i].sign * CMPLXL(atof(token->array[i].value->data), 0);
+                token->array[i].number = CMPLXL(token->array[i].sign * atof(token->array[i].value->data), 0);
             }
             else if (token->array[i].value->info == CMP) {
                 token->array[i].value = delete_symbols(token->array[i].value, 'j');
-                token->array[i].number = token->array[i].sign * CMPLXL(0, atof(token->array[i].value->data));
+                token->array[i].number = CMPLXL(0, token->array[i].sign * atof(token->array[i].value->data));
             }
             add_node_array(notation, &token->array[i]);
         }
     }
     while (stack->pointer)
         add_node_array(notation, pop_from_stack(stack));
-
-    for (int i = 0; i < notation->length; ++i) {
-        if (notation->array[i].value->info != OPN) {
-            printf("%lf+%lfj", creal(notation->array[i].number), cimag(notation->array[i].number));
-        }
-        else {
-            printf("%s ", notation->array[i].value->data);
-        }
-    }
-    printf("\n");
 
     return notation;
 }

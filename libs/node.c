@@ -17,8 +17,10 @@ NODES_ARRAY* init_nodes_array() {
 }
 
 NODES_ARRAY* delete_nodes_array(NODES_ARRAY* nodes_arr) {
-    for (int i = 0; i < nodes_arr->length; ++i)
+    for (int i = 0; i < nodes_arr->length; ++i) {
+        nodes_arr->array[i].value = delete_str(nodes_arr->array[i].value);
         nodes_arr->array[i] = *delete_node(&nodes_arr->array[i]);
+    }
     free(nodes_arr->array);
     free(nodes_arr);
     return NULL;
@@ -35,15 +37,15 @@ void add_node_array(NODES_ARRAY* nodes_arr, NODE* node) {
     nodes_arr->array[nodes_arr->length++] = *node;
 }
 
-NODES_ARRAY* insert_node_array(NODES_ARRAY* nodes_arr, NODE* node, int border) {
+NODES_ARRAY* insert_node_array(NODES_ARRAY* nodes_arr, NODE* node, int border, int k) {
     NODES_ARRAY* new_arr = init_nodes_array();
-    for (int i = 0; i < border - 2; ++i)
+    for (int i = 0; i < border - k; ++i)
         add_node_array(new_arr, &nodes_arr->array[i]);
     add_node_array(new_arr, node);
     for (int i = border + 1; i < nodes_arr->length; ++i)
         add_node_array(new_arr, &nodes_arr->array[i]);
 
-    nodes_arr = delete_nodes_array(nodes_arr);
+//    nodes_arr = delete_nodes_array(nodes_arr);
     return new_arr;
 }
 
