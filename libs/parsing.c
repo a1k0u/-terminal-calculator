@@ -5,8 +5,10 @@
 #include <math.h>
 #include <limits.h>
 #include "hash_table.h"
+#include <complex.h>
 
-int hash_table[1000000] = {0};
+
+Complex hash_table[1000000] = {0};
 int keys[1000000] = {0};
 
 long int M = 1000000;
@@ -22,7 +24,6 @@ int hash(STR* data) {
 
     return index % M;
 }
-
 
 STR BUILT[][2] = {
         {"sin",   FUN, 3},
@@ -45,6 +46,12 @@ STR ACTIONS[][2] = {
         {"^", THIRD, 1},
         {"(", EMPTY, 1},
         {")", EMPTY, 1},
+};
+
+STR CONSTANTS[][3] = {
+        {"PI", VAR, 3},
+        {"e", VAR, 1},
+        {"j", VAR, 1},
 };
 
 int get_priority(STR* operation) {
@@ -139,6 +146,14 @@ NODES_ARRAY* tokenization_string(STR* input) {
 }
 
 NODES_ARRAY* notation_token(NODES_ARRAY* token) {
+    keys[hash(CONSTANTS[0])] = 1;
+    keys[hash(CONSTANTS[1])] = 1;
+    keys[hash(CONSTANTS[2])] = 1;
+
+    hash_table[hash(CONSTANTS[0])] = CMPLXL(M_PI, 0);
+    hash_table[hash(CONSTANTS[1])] = CMPLXL(M_E, 0);
+    hash_table[hash(CONSTANTS[2])] = CMPLXL(0, 1);
+
     STACK* stack = init_stack();
     NODES_ARRAY* notation = init_nodes_array();
 
@@ -166,9 +181,13 @@ NODES_ARRAY* notation_token(NODES_ARRAY* token) {
             if (token->array[i].value->info == VAR) {
                 long int index_of_hash_table = hash(token->array[i].value);
                 int number = 1;
-                if (!keys[index_of_hash_table])
+                if (!keys[index_of_hash_table]) {
                     number = -1;
-                printf("hash=%ld, value=%d\n", index_of_hash_table, number);
+                }
+                else {
+                    printf("val=%lf, %lf ", creal(hash_table[index_of_hash_table]), cimag(hash_table[index_of_hash_table]));
+                }
+                printf("var=%s, hash=%ld, value=%d\n", token->array[i].value->data, index_of_hash_table, number);
             }
             add_node_array(notation, &token->array[i]);
         }
