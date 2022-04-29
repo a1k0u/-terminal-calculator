@@ -5,7 +5,9 @@
 
 int main()
 {
+    printf(">> ");
     STR* input = input_str();
-    NODES_ARRAY * nodes_arr = notation_token(tokenization_string(input));
+    Complex result = solve(input);
+    printf("%s = %lf + %lfj", input->data, creal(result), cimag(result));
     return 0;
 }

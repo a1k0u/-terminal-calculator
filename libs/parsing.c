@@ -1,6 +1,7 @@
 #include "parsing.h"
 #include "stack.h"
 #include <ctype.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include <limits.h>
@@ -58,6 +59,10 @@ int get_priority(STR* operation) {
     for (int i = 0; i < 7; ++i)
         if (compare_str(operation, ACTIONS[i]))
             return ACTIONS[i]->info;
+}
+
+Complex calc(NODES_ARRAY* notation) {
+
 }
 
 NODES_ARRAY* tokenization_string(STR* input) {
@@ -180,14 +185,22 @@ NODES_ARRAY* notation_token(NODES_ARRAY* token) {
         else {
             if (token->array[i].value->info == VAR) {
                 long int index_of_hash_table = hash(token->array[i].value);
-                int number = 1;
                 if (!keys[index_of_hash_table]) {
-                    number = -1;
+                    printf("%s? >> ", token->array[i].value->data);
+                    STR* expression = init_str();
+                    Complex value = calc(notation_token(tokenization_string(expression)));
+                    hash_table[index_of_hash_table] = value;
                 }
-                else {
-                    printf("val=%lf, %lf ", creal(hash_table[index_of_hash_table]), cimag(hash_table[index_of_hash_table]));
-                }
-                printf("var=%s, hash=%ld, value=%d\n", token->array[i].value->data, index_of_hash_table, number);
+                keys[index_of_hash_table] = 1;
+
+                token->array[i].number = token->array[i].sign * hash_table[index_of_hash_table];
+            }
+            else if (token->array[i].value->info == DBL) {
+                token->array[i].number = token->array[i].sign * CMPLXL(atof(token->array[i].value->data), 0);
+            }
+            else if (token->array[i].value->info == CMP) {
+                token->array[i].value = delete_symbols(token->array[i].value, 'j');
+                token->array[i].number = token->array[i].sign * CMPLXL(0, atof(token->array[i].value->data));
             }
             add_node_array(notation, &token->array[i]);
         }
@@ -197,11 +210,11 @@ NODES_ARRAY* notation_token(NODES_ARRAY* token) {
 
     for (int i = 0; i < notation->length; ++i) {
         if (notation->array[i].value->info != OPN) {
-            if (notation->array[i].sign < 0) {
-                printf("-");
-            }
+            printf("%lf+%lfj", creal(notation->array[i].number), cimag(notation->array[i].number));
         }
-        printf("%s ", notation->array[i].value->data);
+        else {
+            printf("%s ", notation->array[i].value->data);
+        }
     }
     printf("\n");
 
