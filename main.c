@@ -10,6 +10,6 @@ int main()
     STR* tmp = init_str();
     copy_str(tmp, input);
     COMPLEX result = calc(notation_token(tokenization_string(tmp)));
-    printf("%s = %lf + %lfj", input->data, creal(result), cimag(result));
+    printf("<< ... = %lf + %lfj", creal(result), cimag(result));
     return 0;
 }

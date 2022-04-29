@@ -107,11 +107,11 @@ COMPLEX calc(NODES_ARRAY* notation) {
             else if (compare_str(current_string, BUILT[EXP]))
                 result = cexpl(a);
             else if (compare_str(current_string, BUILT[REAL]))
-                result = CMPLXL(creal(a), 0);
+                result = CMPLXL(creall(a), 0);
             else if (compare_str(current_string, BUILT[IMAG]))
-                result = CMPLXL(cimag(a), 0);
+                result = CMPLXL(cimagl(a), 0);
             else if (compare_str(current_string, BUILT[MAG]))
-                result = CMPLXL(sqrtl(powl(cimag(a), 2) + powl(creal(a), 2)), 0);
+                result = CMPLXL(sqrtl(powl(cimagl(a), 2) + powl(creall(a), 2)), 0);
             else if (compare_str(current_string, BUILT[PHASE]))
                 result = cargl(a);
 
