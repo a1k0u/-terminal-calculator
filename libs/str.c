@@ -4,27 +4,31 @@
 #include <stdio.h>
 
 
-STR* init_str() {
-    STR* str = (STR*)malloc(sizeof(STR));
+STR* init_str()
+{
+    STR* str  = (STR*)malloc(sizeof(STR));
     str->data = (char*)malloc(sizeof(char));
     str->info = NON;
-    str->len = 0;
+    str->len  = 0;
     return str;
 }
 
-STR* delete_str(STR *str) {
+STR* delete_str(STR *str)
+{
     free(str->data);
     free(str);
     return NULL;
 }
 
-void push_str(STR* str, char symbol) {
+void push_str(STR* str, char symbol)
+{
     str->len += 1;
     str->data = (char*)realloc(str->data, sizeof(char) * str->len);
     str->data[str->len - 1] = symbol;
 }
 
-int compare_str(STR* str1, STR* str2) {
+int compare_str(STR* str1, STR* str2)
+{
     if (str1->len != str2->len)
         return 0;
 
@@ -35,7 +39,8 @@ int compare_str(STR* str1, STR* str2) {
     return 1;
 }
 
-STR* delete_symbols(STR* str, char symbol) {
+STR* delete_symbols(STR* str, char symbol)
+{
     STR* new_str = init_str();
     for (int i = 0; i < str->len; ++i)
         if (str->data[i] != symbol)
@@ -44,11 +49,11 @@ STR* delete_symbols(STR* str, char symbol) {
     return new_str;
 }
 
-STR* input_str() {
-    char chr;
+STR* input_str()
+{
     STR* new_str = init_str();
 
-    chr = getchar();
+    char chr = getchar();
     while (chr != '\n')
     {
         push_str(new_str, chr);
@@ -58,8 +63,9 @@ STR* input_str() {
     return new_str;
 }
 
-void copy_str(STR* str1, STR* str2) {
-    for (int i = 0; i < str2->len; ++i)
-        push_str(str1, str2->data[i]);
-    str1->info = str2->info;
+void copy_str(STR* dest, STR* src)
+{
+    for (int i = 0; i < src->len; ++i)
+        push_str(dest, src->data[i]);
+    dest->info = src->info;
 }

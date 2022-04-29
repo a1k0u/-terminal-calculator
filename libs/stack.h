@@ -6,7 +6,8 @@
 
 typedef struct Stack {
     NODE* array;
-    int capacity, pointer;
+    int   capacity;
+    int   pointer;
 } STACK;
 
 STACK* add_to_stack(STACK* stack, NODE* elem);

@@ -3,6 +3,25 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <math.h>
+#include <limits.h>
+#include "hash_table.h"
+
+int hash_table[1000000] = {0};
+int keys[1000000] = {0};
+
+long int M = 1000000;
+long int p = 127;
+
+int hash(STR* data) {
+    long int index = 0, k = 1;
+    for (int i = 0; i < data->len; ++i) {
+        index += (long int) data->data[i] * k;
+        index %= M;
+        k *= p;
+    }
+
+    return index % M;
+}
 
 
 STR BUILT[][2] = {
@@ -100,6 +119,22 @@ NODES_ARRAY* tokenization_string(STR* input) {
     if (var->len)
         add_node_array(nodes_array, create_node(var, sign));
 
+
+    for (int i = 0; i < nodes_array->length; ++i) {
+        if (nodes_array->array[i].value->info != OPN) {
+            if (nodes_array->array[i].sign < 0) {
+                printf("-");
+            }
+        }
+        printf("%s(%s) ", nodes_array->array[i].value->data,
+               nodes_array->array[i].value->info == FUN ? "FUN" :
+               nodes_array->array[i].value->info == VAR ? "VAR" :
+               nodes_array->array[i].value->info == CMP ? "CMP" :
+               nodes_array->array[i].value->info == DBL ? "DBL" :
+               "OPN");
+    }
+    printf("\n");
+
     return nodes_array;
 }
 
@@ -128,11 +163,28 @@ NODES_ARRAY* notation_token(NODES_ARRAY* token) {
             }
         }
         else {
+            if (token->array[i].value->info == VAR) {
+                long int index_of_hash_table = hash(token->array[i].value);
+                int number = 1;
+                if (!keys[index_of_hash_table])
+                    number = -1;
+                printf("hash=%ld, value=%d\n", index_of_hash_table, number);
+            }
             add_node_array(notation, &token->array[i]);
         }
     }
     while (stack->pointer)
         add_node_array(notation, pop_from_stack(stack));
+
+    for (int i = 0; i < notation->length; ++i) {
+        if (notation->array[i].value->info != OPN) {
+            if (notation->array[i].sign < 0) {
+                printf("-");
+            }
+        }
+        printf("%s ", notation->array[i].value->data);
+    }
+    printf("\n");
 
     return notation;
 }
