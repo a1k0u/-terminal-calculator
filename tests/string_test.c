@@ -1,4 +1,4 @@
-#include "libs/string.h"
+#include "libs/str.h"
 
 int main()
 {

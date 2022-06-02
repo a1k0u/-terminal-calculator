@@ -78,6 +78,7 @@ COMPLEX calc(NODES_ARRAY* notation) {
 
     while (notation->length != 1) {
         STR* current_string = notation->array[index].value;
+        int sign = notation->array[index].sign;
         if(current_string->info == OPN) {
             COMPLEX a = notation->array[index - 2].number;
             COMPLEX b = notation->array[index - 1].number;
@@ -115,6 +116,8 @@ COMPLEX calc(NODES_ARRAY* notation) {
             else if (compare_str(current_string, BUILT[PHASE]))
                 result = cargl(a);
 
+            result *= sign;
+
             insert_flag = RESULT_FUNC;
         }
 
@@ -133,6 +136,7 @@ COMPLEX calc(NODES_ARRAY* notation) {
             continue;
         }
         index++;
+
     }
     return notation->array[0].number;
 }
@@ -174,6 +178,13 @@ NODES_ARRAY* tokenization_string(STR* input) {
                 STR* tmp = init_str();
                 copy_str(tmp, ACTIONS[j]);
                 tmp->info = OPN;
+                if (number_sign == -1) {
+                    STR num = {"1", DBL, 1};
+                    STR op = {"*", OPN, 1};
+                    add_node_array(nodes_array, create_node(&num, number_sign));
+                    add_node_array(nodes_array, create_node(&op, number_sign));
+                    number_sign = 1;
+                }
                 add_node_array(nodes_array, create_node(tmp, number_sign));
             }
         }
@@ -203,6 +214,7 @@ NODES_ARRAY* tokenization_string(STR* input) {
 
     if (var->len)
         add_node_array(nodes_array, create_node(var, number_sign));
+
     return nodes_array;
 }
 
@@ -258,5 +270,6 @@ NODES_ARRAY* notation_token(NODES_ARRAY* token) {
 
     while (stack->pointer)
         add_node_array(notation, pop_from_stack(stack));
+
     return notation;
 }
